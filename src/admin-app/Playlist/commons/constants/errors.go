@@ -1,7 +1,6 @@
 package constants
 
-// routers
-
+// Router
 const (
 	DatabaseConnectionError = "error connecting to database %w"
 	DatabasePingingError    = "error pinging database %w"
@@ -30,7 +29,7 @@ const (
 	UnexpectedError             = "An unexpected error occurred"
 )
 
-// ad playlist Repo
+// Ad playlist Repo
 
 const (
 	PlaylistExistenceCheckError   = "failed to check playlist existence"
@@ -41,7 +40,7 @@ const (
 	NoSongsDeletedFromPlaylist    = "no songs were deleted from playlist"
 )
 
-// ad playlist Service
+// Ad playlist Service
 
 const (
 	PlaylistDoesNotExistsError    = "playlist does not exist"
@@ -50,6 +49,6 @@ const (
 	InvalidAction                 = "invalid Action"
 	PlaylistNotFoundError         = "playlist not found"
 	NoValidSongsToAddError        = "no valid songs to add"
-	NoValidSongsToBeDeletedError  = "no valid songs to add"
+	NoValidSongsToBeDeletedError  = "no valid songs to delete"
 	InvalidActionsError           = "Invalid action. Must be either 'ADD' or 'DELETE'"
 )

@@ -1,0 +1,234 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/v1/api/playlists/ad": {
+            "put": {
+                "description": "Add new songs to or delete existing songs from a playlist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlists"
+                ],
+                "summary": "Modify playlist songs",
+                "parameters": [
+                    {
+                        "description": "Add/Delete songs request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BFFAdSongsFromPlaylistRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation successful",
+                        "schema": {
+                            "$ref": "#/definitions/models.BFFAdSongsFromPlaylistResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input or action",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Playlist or songs not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Songs already exist in playlist",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/api/playlists/create": {
+            "post": {
+                "description": "Creates a new playlist with specified songs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlists"
+                ],
+                "summary": "Create new playlist",
+                "parameters": [
+                    {
+                        "description": "Create playlist request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BFFCreateUserPlaylistRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Playlist created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.BFFCreateUserPlaylistResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input: Validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Songs not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Playlist already exists",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorAPIResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.BFFAdSongsFromPlaylistRequest": {
+            "type": "object",
+            "required": [
+                "action",
+                "playlistId",
+                "songIds",
+                "userId"
+            ],
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": [
+                        "ADD",
+                        "DELETE"
+                    ],
+                    "example": "ADD"
+                },
+                "playlistId": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "songIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "userId": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "models.BFFAdSongsFromPlaylistResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Songs added to playlist successfully"
+                },
+                "playlist": {
+                    "type": "object"
+                }
+            }
+        },
+        "models.BFFCreateUserPlaylistRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "songIds",
+                "userId"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "songIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BFFCreateUserPlaylistResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ErrorAPIResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ErrorMessage"
+                    }
+                }
+            }
+        },
+        "models.ErrorMessage": {
+            "type": "object",
+            "properties": {
+                "errorMessage": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

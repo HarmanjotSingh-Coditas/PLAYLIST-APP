@@ -1,7 +1,5 @@
 package constants
 
-// port
-
 const (
 	Port = ":8080"
 )

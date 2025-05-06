@@ -26,10 +26,10 @@ const (
 	Required = "required"
 )
 
-// Main function
+// Main function Messages
 
 const (
-	ConnectingToServer    = "Connecting to the server on port %s"
-	ConnectedToServer     = "Connected to the server on port %s"
-	ServerShutdownSignal  = "Termination Signal Recieved , shutting down the server"
+	ConnectingToServer   = "Connecting to the server on port %s"
+	ConnectedToServer    = "Connected to the server on port %s"
+	ServerShutdownSignal = "Termination Signal Recieved , shutting down the server"
 )

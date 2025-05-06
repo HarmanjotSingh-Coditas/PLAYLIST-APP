@@ -1,6 +1,6 @@
 package constants
 
-// routes
+// Routes
 
 const (
 	Group               = "/v1"
@@ -8,5 +8,3 @@ const (
 	CreatePlaylistRoute = "api/playlists/create"
 	AdPlaylistRoute     = "api/playlists/ad"
 )
-
-

@@ -24,6 +24,19 @@ func NewADSongsFromPlaylistController(service business.AdSongsFromPlaylistServic
 	}
 }
 
+// HandleAdSongsFromPlaylist adds or deletes songs from playlist
+// @Summary Modify playlist songs
+// @Description Add new songs to or delete existing songs from a playlist
+// @Tags Playlists
+// @Accept json
+// @Produce json
+// @Param request body models.BFFAdSongsFromPlaylistRequest true "Add/Delete songs request"
+// @Success 200 {object} models.BFFAdSongsFromPlaylistResponse "Operation successful"
+// @Failure 400 {object} genericModels.ErrorAPIResponse "Invalid input or action"
+// @Failure 404 {object} genericModels.ErrorAPIResponse "Playlist or songs not found"
+// @Failure 409 {object} genericModels.ErrorAPIResponse "Songs already exist in playlist"
+// @Failure 500 {object} genericModels.ErrorAPIResponse "Internal server error"
+// @Router /v1/api/playlists/ad [put]
 func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *gin.Context) {
 	var bffAdSongsRequest models.BFFAdSongsFromPlaylistRequest
 
@@ -76,9 +89,8 @@ func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *
 		return
 	}
 
-	// Handle success response
 	response := models.BFFAdSongsFromPlaylistResponse{
-		Playlist: playlist,
+		Playlist: *playlist,
 	}
 
 	switch bffAdSongsRequest.Action {

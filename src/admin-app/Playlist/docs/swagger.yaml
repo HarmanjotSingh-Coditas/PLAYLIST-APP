@@ -1,0 +1,155 @@
+definitions:
+  models.BFFAdSongsFromPlaylistRequest:
+    properties:
+      action:
+        enum:
+        - ADD
+        - DELETE
+        example: ADD
+        type: string
+      playlistId:
+        example: 1
+        type: integer
+      songIds:
+        example:
+        - 1
+        - 2
+        - 3
+        items:
+          type: integer
+        type: array
+      userId:
+        example: 1
+        type: integer
+    required:
+    - action
+    - playlistId
+    - songIds
+    - userId
+    type: object
+  models.BFFAdSongsFromPlaylistResponse:
+    properties:
+      message:
+        example: Songs added to playlist successfully
+        type: string
+      playlist:
+        type: object
+    type: object
+  models.BFFCreateUserPlaylistRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      songIds:
+        items:
+          type: integer
+        type: array
+      userId:
+        type: integer
+    required:
+    - name
+    - songIds
+    - userId
+    type: object
+  models.BFFCreateUserPlaylistResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.ErrorAPIResponse:
+    properties:
+      error:
+        type: string
+      errors:
+        items:
+          $ref: '#/definitions/models.ErrorMessage'
+        type: array
+    type: object
+  models.ErrorMessage:
+    properties:
+      errorMessage:
+        type: string
+      key:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/api/playlists/ad:
+    put:
+      consumes:
+      - application/json
+      description: Add new songs to or delete existing songs from a playlist
+      parameters:
+      - description: Add/Delete songs request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BFFAdSongsFromPlaylistRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Operation successful
+          schema:
+            $ref: '#/definitions/models.BFFAdSongsFromPlaylistResponse'
+        "400":
+          description: Invalid input or action
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+        "404":
+          description: Playlist or songs not found
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+        "409":
+          description: Songs already exist in playlist
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+      summary: Modify playlist songs
+      tags:
+      - Playlists
+  /v1/api/playlists/create:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new playlist with specified songs
+      parameters:
+      - description: Create playlist request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BFFCreateUserPlaylistRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist created successfully
+          schema:
+            $ref: '#/definitions/models.BFFCreateUserPlaylistResponse'
+        "400":
+          description: 'Invalid input: Validation failed'
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+        "404":
+          description: Songs not found
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+        "409":
+          description: Playlist already exists
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorAPIResponse'
+      summary: Create new playlist
+      tags:
+      - Playlists
+swagger: "2.0"
