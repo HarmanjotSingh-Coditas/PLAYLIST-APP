@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	genericConstants "playlist-app/src/constants"
 	"sync"
 
 	"github.com/spf13/viper"
@@ -16,23 +17,24 @@ var (
 
 func GetPostgresClient() *gorm.DB {
 	once.Do(func() {
-		viper.AddConfigPath("../../../src/config")
-		viper.SetConfigName("postgres")
-		viper.SetConfigType("yml")
+		viper.AddConfigPath(genericConstants.ConfigPath)
+		viper.SetConfigName(genericConstants.ConfigName)
+		viper.SetConfigType(genericConstants.ConfigType)
 		if err := viper.ReadInConfig(); err != nil {
-			panic(fmt.Errorf("error retrieving database %w", err))
+			panic(fmt.Errorf(genericConstants.DatabaseRetrievalError, err))
 		}
 		dsn := fmt.Sprintf("host=%s port=%s dbname=%s password=%s user=%s sslmode=%s",
-			viper.GetString("host"), viper.GetString("port"), viper.GetString("dbname"), viper.GetString("password"),
-			viper.GetString("user"), viper.GetString("sslmode"))
+			viper.GetString(genericConstants.Host), viper.GetString(genericConstants.Port),
+			viper.GetString(genericConstants.Dbname), viper.GetString(genericConstants.Password),
+			viper.GetString(genericConstants.User), viper.GetString(genericConstants.Sslmode))
 		var err error
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			panic(fmt.Errorf("error authenticating with the DB %w", err))
+			panic(fmt.Errorf(genericConstants.DatabaseAuthenticationError, err))
 		}
 	})
 	if db == nil {
-		panic("DB is nil")
+		panic(genericConstants.DatabaseNilError)
 	}
 	return db
 }

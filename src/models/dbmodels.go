@@ -29,7 +29,4 @@ type PlaylistSong struct {
 	PlaylistID int       `gorm:"primaryKey;column:playlist_id;not null"`
 	SongID     int       `gorm:"primaryKey;column:song_id;not null"`
 	AddedAt    time.Time `gorm:"column:added_at;autoCreateTime"`
-	// Remove Playlist and Song fields unless needed for preloading
-	// Playlist Playlist `gorm:"foreignKey:PlaylistID;references:ID"`
-	// Song     Songs    `gorm:"foreignKey:SongID;references:ID"`
 }

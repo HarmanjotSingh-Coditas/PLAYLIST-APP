@@ -3,7 +3,9 @@ package validations
 import (
 	"context"
 	"fmt"
+	genericConstants "playlist-app/src/constants"
 	genericModels "playlist-app/src/models"
+
 	"reflect"
 	"strings"
 
@@ -13,7 +15,7 @@ import (
 var bffValidator *validator.Validate
 
 var customErrMapping = map[string]string{
-	"required": "this field is required",
+	genericConstants.Required: genericConstants.FieldRequiredError,
 }
 
 func GetBFFValidator(ctx context.Context) *validator.Validate {
@@ -44,8 +46,8 @@ func FormatValidationErrors(validationErrors validator.ValidationErrors) ([]gene
 		msg := customErrMapping[e.Tag()]
 		if msg == "" {
 			switch e.Tag() {
-			case " ":
-				msg = fmt.Sprintf("%s field is required", e.Field())
+			case "":
+				msg = fmt.Sprintf(genericConstants.FieldRequiredError, e.Field())
 			default:
 				msg = e.Error()
 			}

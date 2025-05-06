@@ -1,6 +1,7 @@
 package business
 
 import (
+	"admin-app/Playlist/commons/constants"
 	"admin-app/Playlist/models"
 	"admin-app/Playlist/repositiories"
 	"context"
@@ -24,28 +25,28 @@ func (service *CreateUserPlaylistService) CreateUserPlaylistService(ctx context.
 
 	for _, songID := range bffCreateUserPlaylist.Song_ids {
 		conditions := map[string]interface{}{
-			"id": songID,
+			constants.SongId: songID,
 		}
-		columns := []string{"id"}
+		columns := []string{constants.SongId}
 		exists, err := service.repository.CheckSongIdExists(ctx, db, columns, conditions)
 		if err != nil {
 			return false, err
 		}
 		if !exists {
-			return false, errors.New("one or more song IDs do not exist")
+			return false, errors.New(constants.SongIdsDoesNotExistsError)
 		}
 	}
 
 	conditions := map[string]interface{}{
-		"name": bffCreateUserPlaylist.Name,
+		constants.PlaylistName: bffCreateUserPlaylist.Name,
 	}
-	columns := []string{"name"}
+	columns := []string{constants.PlaylistName}
 	exists, err := service.repository.CheckPlaylistExists(ctx, db, columns, conditions)
 	if err != nil {
 		return false, err
 	}
 	if exists {
-		return false, errors.New("playlist already exists")
+		return false, errors.New(constants.PlaylistAlreadyExistsError)
 	}
 
 	playlist := genericModels.Playlist{

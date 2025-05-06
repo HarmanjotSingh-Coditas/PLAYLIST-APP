@@ -1,6 +1,7 @@
 package repositiories
 
 import (
+	"admin-app/Playlist/commons/constants"
 	"context"
 	"errors"
 	"fmt"
@@ -38,9 +39,9 @@ func (repository *createUserPlaylistRepository) CheckSongIdExists(ctx context.Co
 	err := db.WithContext(ctx).Model(&genericModels.Songs{}).Where(conditions).Count(&count).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, errors.New("song ID does not exist")
+			return false, errors.New(constants.SongIdDoesNotExistsError)
 		}
-		return false, fmt.Errorf("failed to check song ID: %w", err)
+		return false, fmt.Errorf(constants.SongIdExsistenceCheckingError, err)
 	}
 	return count > 0, nil
 }
@@ -49,29 +50,29 @@ func (repository *createUserPlaylistRepository) CheckPlaylistExists(ctx context.
 	var count int64
 	err := db.WithContext(ctx).Model(&genericModels.Playlist{}).Where(conditions).Count(&count).Error
 	if err != nil {
-		return false, fmt.Errorf("failed to check playlist existence: %w", err)
+		return false, fmt.Errorf(constants.PlaylisyExistenceCheckingError, err)
 	}
 	return count > 0, nil
 }
 
 func (repository *createUserPlaylistRepository) CreatePlaylist(ctx context.Context, db *gorm.DB, playlist genericModels.Playlist) (int, error) {
 	if playlist.UserID == 0 {
-		return 0, errors.New("user_id is required")
+		return 0, errors.New(constants.UserIdRequired)
 	}
 	err := db.WithContext(ctx).Create(&playlist).Error
 	if err != nil {
-		return 0, fmt.Errorf("failed to create playlist: %w", err)
+		return 0, fmt.Errorf(constants.PlaylistCreationError, err)
 	}
 	return playlist.ID, nil
 }
 
 func (repository *createUserPlaylistRepository) AddSongsToPlaylist(ctx context.Context, db *gorm.DB, playlistSongs []genericModels.PlaylistSong) error {
 	if len(playlistSongs) == 0 {
-		return nil 
+		return nil
 	}
 	err := db.WithContext(ctx).Create(&playlistSongs).Error
 	if err != nil {
-		return fmt.Errorf("failed to add songs to playlist: %w", err)
+		return fmt.Errorf(constants.AddingSongsToPlaylistError, err)
 	}
 	return nil
 }

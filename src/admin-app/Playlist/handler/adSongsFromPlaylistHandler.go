@@ -2,6 +2,7 @@ package handler
 
 import (
 	"admin-app/Playlist/business"
+	"admin-app/Playlist/commons/constants"
 	"admin-app/Playlist/models"
 	"encoding/json"
 	"net/http"
@@ -29,7 +30,7 @@ func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *
 	if err := ctx.ShouldBindJSON(&bffAdSongsRequest); err != nil {
 		errorMsgs := genericModels.ErrorMessage{
 			Key:          err.(*json.UnmarshalTypeError).Field,
-			ErrorMessage: "JsonBindingFieldError",
+			ErrorMessage: constants.JsonBindingFieldError,
 		}
 		errorResponse := genericModels.ErrorAPIResponse{
 			Message: []genericModels.ErrorMessage{errorMsgs},
@@ -47,29 +48,29 @@ func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *
 	playlist, err := controller.service.AdSongsPlaylistService(ctx, bffAdSongsRequest)
 	if err != nil {
 		switch {
-		case strings.Contains(err.Error(), "playlist does not exist"):
+		case strings.Contains(err.Error(), constants.PlaylistDoesNotExistsError):
 			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
-				ErrorMessage: "Playlist not found",
+				ErrorMessage: constants.PlaylistNotFoundError,
 			})
-		case strings.Contains(err.Error(), "no valid songs to add"):
+		case strings.Contains(err.Error(), constants.NoValidSongsToAddError):
 			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{
 				ErrorMessage: err.Error(),
 			})
-		case strings.Contains(err.Error(), "no valid songs to delete"):
+		case strings.Contains(err.Error(), constants.NoValidSongsToBeDeletedError):
 			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{
 				ErrorMessage: err.Error(),
 			})
-		case strings.Contains(err.Error(), "invalid action"):
+		case strings.Contains(err.Error(), constants.InvalidAction):
 			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{
-				ErrorMessage: "Invalid action. Must be either 'ADD' or 'DELETE'",
+				ErrorMessage: constants.InvalidActionsError,
 			})
-		case strings.Contains(err.Error(), "songs with IDs"):
+		case strings.Contains(err.Error(), constants.SongsWithIds):
 			ctx.JSON(http.StatusConflict, genericModels.ErrorAPIResponse{
 				ErrorMessage: err.Error(),
 			})
 		default:
 			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-				ErrorMessage: "An unexpected error occurred",
+				ErrorMessage: constants.UnexpectedError,
 			})
 		}
 		return
@@ -82,9 +83,9 @@ func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *
 
 	switch bffAdSongsRequest.Action {
 	case "ADD":
-		response.Message = "Songs added to playlist successfully"
+		response.Message = constants.SongsAddedToPlaylistSuccess
 	case "DELETE":
-		response.Message = "Songs deleted from playlist successfully"
+		response.Message = constants.SongsDeletedFromPlaylistSuccess
 	}
 
 	ctx.JSON(http.StatusOK, response)

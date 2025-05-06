@@ -1,6 +1,7 @@
 package business
 
 import (
+	"admin-app/Playlist/commons/constants"
 	"admin-app/Playlist/models"
 	"admin-app/Playlist/repositiories"
 	"context"
@@ -33,7 +34,7 @@ func (service *AdSongsFromPlaylistService) AdSongsPlaylistService(ctx context.Co
 		return nil, err
 	}
 	if !exists {
-		return nil, errors.New("playlist does not exist")
+		return nil, errors.New(constants.PlaylistDoesNotExistsError)
 	}
 
 	switch BffAdSongsFromPlaylistRequest.Action {
@@ -43,8 +44,8 @@ func (service *AdSongsFromPlaylistService) AdSongsPlaylistService(ctx context.Co
 
 		for _, songId := range BffAdSongsFromPlaylistRequest.Song_ids {
 			dupExistenceCheck := map[string]interface{}{
-				"playlist_id": BffAdSongsFromPlaylistRequest.PlaylistId,
-				"song_id":     songId,
+				constants.PlaylistId: BffAdSongsFromPlaylistRequest.PlaylistId,
+				constants.SongsId:    songId,
 			}
 			exists, err = service.repository.CheckSongsExistsInPlaylist(ctx, db, dupExistenceCheck)
 			if err != nil {
@@ -61,7 +62,7 @@ func (service *AdSongsFromPlaylistService) AdSongsPlaylistService(ctx context.Co
 		}
 
 		if len(songsToAdd) == 0 {
-			return nil, fmt.Errorf("songs with IDs [%v] already exist in playlist", strings.Trim(strings.Join(strings.Fields(fmt.Sprint(existingSongs)), ", "), "[]"))
+			return nil, fmt.Errorf(constants.SongIdsAlreadyInPlaylistError, strings.Trim(strings.Join(strings.Fields(fmt.Sprint(existingSongs)), ", "), "[]"))
 		}
 
 		err = service.repository.AddSongsToPlaylist(ctx, db, songsToAdd)
@@ -75,8 +76,8 @@ func (service *AdSongsFromPlaylistService) AdSongsPlaylistService(ctx context.Co
 
 		for _, songID := range BffAdSongsFromPlaylistRequest.Song_ids {
 			existenceCheck := map[string]interface{}{
-				"playlist_id": BffAdSongsFromPlaylistRequest.PlaylistId,
-				"song_id":     songID,
+				constants.PlaylistId: BffAdSongsFromPlaylistRequest.PlaylistId,
+				constants.SongsId:    songID,
 			}
 			exists, err = service.repository.CheckSongsExistsInPlaylist(ctx, db, existenceCheck)
 			if err != nil {
@@ -93,13 +94,13 @@ func (service *AdSongsFromPlaylistService) AdSongsPlaylistService(ctx context.Co
 		}
 
 		if len(songsToDelete) == 0 {
-			return nil, fmt.Errorf("no valid songs to delete. Non-existent songs: %v", nonExistentSongs)
+			return nil, fmt.Errorf(constants.NoValidSongsToDeleteError, nonExistentSongs)
 		}
 
 		for _, songToDelete := range songsToDelete {
 			deleteConditions := map[string]interface{}{
-				"playlist_id": songToDelete.PlaylistID,
-				"song_id":     songToDelete.SongID,
+				constants.PlaylistId: songToDelete.PlaylistID,
+				constants.SongsId:    songToDelete.SongID,
 			}
 			if err := service.repository.DeleteSongsFromPlaylist(ctx, db, deleteConditions); err != nil {
 				continue
@@ -107,7 +108,7 @@ func (service *AdSongsFromPlaylistService) AdSongsPlaylistService(ctx context.Co
 		}
 
 	default:
-		return nil, errors.New("invalid action")
+		return nil, errors.New(constants.InvalidAction)
 	}
 
 	updatedPlaylist, err := service.repository.GetPlaylistWithSongs(ctx, db, BffAdSongsFromPlaylistRequest.PlaylistId)

@@ -1,27 +1,30 @@
 package main
 
 import (
+	"admin-app/Playlist/commons/constants"
 	"admin-app/Playlist/routers"
+
 	"log"
 	"os"
 	"os/signal"
+	genericConstants "playlist-app/src/constants"
 )
 
 func main() {
 	router := routers.GetRouter()
-	port := ":8080"
+	port := constants.Port
 
-	log.Printf("Connecting server on port %s", port)
+	log.Printf(genericConstants.ConnectingToServer, port)
 	go func() {
 		if err := router.Run(port); err != nil {
-			log.Fatalf("Unable to connect to server")
+			log.Fatalf(genericConstants.UnableToConnectServerError)
 		}
 	}()
-	log.Printf("Connected server on port %s", port)
+	log.Printf(genericConstants.ConnectedToServer, port)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Termination Signal Recieved , shutting down the server")
+	log.Println(genericConstants.ServerShutdownSignal)
 
 }

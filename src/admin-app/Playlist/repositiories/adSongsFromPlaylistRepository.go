@@ -1,6 +1,7 @@
 package repositiories
 
 import (
+	"admin-app/Playlist/commons/constants"
 	"context"
 	"errors"
 
@@ -38,7 +39,7 @@ func (repository *adSongsFromPlaylistRepository) CheckPlaylistExists(ctx context
 	var count int64
 	err := db.WithContext(ctx).Model(&genericModels.Playlist{}).Where(conditions).Count(&count).Error
 	if err != nil {
-		return false, errors.New("failed to check playlist existence")
+		return false, errors.New(constants.PlaylistExistenceCheckError)
 	}
 	return count > 0, nil
 }
@@ -47,18 +48,18 @@ func (repository *adSongsFromPlaylistRepository) CheckSongsExistsInPlaylist(ctx 
 	var count int64
 	err := db.WithContext(ctx).Model(&genericModels.PlaylistSong{}).Where(conditions).Count(&count).Error
 	if err != nil {
-		return false, errors.New("failed to check song existence")
+		return false, errors.New(constants.SongExistenceCheckingError)
 	}
 	return count > 0, nil
 }
 
 func (repository *adSongsFromPlaylistRepository) AddSongsToPlaylist(ctx context.Context, db *gorm.DB, playlistSongs []genericModels.PlaylistSong) error {
 	if len(playlistSongs) == 0 {
-		return errors.New("no songs provided to add")
+		return errors.New(constants.NoSongsProvidedError)
 	}
 	err := db.WithContext(ctx).Create(&playlistSongs).Error
 	if err != nil {
-		return errors.New("failed to add songs to playlist")
+		return errors.New(constants.SongAddingToPlaylistError)
 	}
 	return nil
 }
@@ -66,10 +67,10 @@ func (repository *adSongsFromPlaylistRepository) AddSongsToPlaylist(ctx context.
 func (repository *adSongsFromPlaylistRepository) DeleteSongsFromPlaylist(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) error {
 	result := db.WithContext(ctx).Model(&genericModels.PlaylistSong{}).Where(conditions).Delete(&genericModels.PlaylistSong{})
 	if result.Error != nil {
-		return errors.New("failed to delete songs from playlist")
+		return errors.New(constants.SongDeletionfromPlaylistError)
 	}
 	if result.RowsAffected == 0 {
-		return errors.New("no songs were deleted from playlist")
+		return errors.New(constants.NoSongsDeletedFromPlaylist)
 	}
 	return nil
 }
@@ -77,8 +78,8 @@ func (repository *adSongsFromPlaylistRepository) DeleteSongsFromPlaylist(ctx con
 func (repository *adSongsFromPlaylistRepository) GetPlaylistWithSongs(ctx context.Context, db *gorm.DB, playlistID int) (*genericModels.Playlist, error) {
 	var playlist genericModels.Playlist
 	err := db.WithContext(ctx).
-		Preload("Songs").
-		Where("id = ?", playlistID).
+		Preload(constants.Songs).
+		Where(constants.WehereIdClause, playlistID).
 		First(&playlist).Error
 	if err != nil {
 		return nil, err

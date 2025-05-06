@@ -2,6 +2,7 @@ package handler
 
 import (
 	"admin-app/Playlist/business"
+	"admin-app/Playlist/commons/constants"
 	"admin-app/Playlist/models"
 	"encoding/json"
 	"net/http"
@@ -29,7 +30,7 @@ func (controller *CreateUserPlaylistController) HandleCreateUserPlaylist(ctx *gi
 	if err := ctx.ShouldBindJSON(&bffCreateUserPlaylist); err != nil {
 		errorMsgs := genericModels.ErrorMessage{
 			Key:          err.(*json.UnmarshalTypeError).Field,
-			ErrorMessage: "JsonBindingFieldError",
+			ErrorMessage: constants.JsonBindingFieldError,
 		}
 		errorResponse := genericModels.ErrorAPIResponse{
 			Message: []genericModels.ErrorMessage{errorMsgs},
@@ -46,21 +47,21 @@ func (controller *CreateUserPlaylistController) HandleCreateUserPlaylist(ctx *gi
 
 	created, err := controller.service.CreateUserPlaylistService(ctx, bffCreateUserPlaylist)
 	if err != nil {
-		if strings.Contains(err.Error(), "one or more song IDs do not exist") {
+		if strings.Contains(err.Error(), constants.SongIdsDoesNotExistsError) {
 			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
-				ErrorMessage: "One or more song IDs do not exist",
+				ErrorMessage: constants.SongIdsDoesNotExistsError,
 			})
-		} else if strings.Contains(err.Error(), "playlist already exists") {
+		} else if strings.Contains(err.Error(), constants.PlaylistAlreadyExistsError) {
 			ctx.JSON(http.StatusConflict, genericModels.ErrorAPIResponse{
-				ErrorMessage: "Playlist already exists",
+				ErrorMessage: constants.PlaylistAlreadyExistsError,
 			})
-		} else if strings.Contains(err.Error(), "playlist could not be created") {
+		} else if strings.Contains(err.Error(), constants.PlaylistCreationFailedError) {
 			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-				ErrorMessage: "Failed to create playlist",
+				ErrorMessage: constants.FailedToCreatePlaylist,
 			})
 		} else {
 			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-				ErrorMessage: "An unexpected error occurred",
+				ErrorMessage: constants.UnexpectedError,
 			})
 		}
 		return
@@ -68,11 +69,11 @@ func (controller *CreateUserPlaylistController) HandleCreateUserPlaylist(ctx *gi
 
 	if created {
 		ctx.JSON(http.StatusOK, models.BFFCreateUserPlaylistResponse{
-			Message: "Playlist created successfully",
+			Message: constants.PlaylistCreationSuccess,
 		})
 	} else {
 		ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-			ErrorMessage: "Failed to create playlist",
+			ErrorMessage: constants.FailedToCreatePlaylist,
 		})
 	}
 }
