@@ -3,6 +3,7 @@ package routers
 import (
 	"admin-app/Playlist/business"
 	"admin-app/Playlist/commons/constants"
+	_ "admin-app/Playlist/docs" // Import generated Swagger docs
 	"admin-app/Playlist/handler"
 	"admin-app/Playlist/models"
 	"admin-app/Playlist/repositiories"
@@ -12,6 +13,8 @@ import (
 	"playlist-app/src/utils/postgres"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func GetRouter() *gin.Engine {
@@ -28,6 +31,20 @@ func GetRouter() *gin.Engine {
 		panic(fmt.Errorf(constants.DatabasePingingError, err))
 	}
 	log.Println(constants.DatabaseConnectionSuccess)
+
+	// Enable CORS
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	useDBMocks := false
 	createUserPlaylistRepo := repositiories.GetCreateUserPlaylistRepository(useDBMocks)

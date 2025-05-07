@@ -32,10 +32,10 @@ func NewCreateUserPlaylistController(service business.CreateUserPlaylistService)
 // @Produce json
 // @Param request body models.BFFCreateUserPlaylistRequest true "Create playlist request"
 // @Success 200 {object} models.BFFCreateUserPlaylistResponse "Playlist created successfully"
-// @Failure 400 {object} genericModels.ErrorAPIResponse "Invalid input: Validation failed"
-// @Failure 404 {object} genericModels.ErrorAPIResponse "Songs not found"
-// @Failure 409 {object} genericModels.ErrorAPIResponse "Playlist already exists"
-// @Failure 500 {object} genericModels.ErrorAPIResponse "Internal server error"
+// @Failure 400 {object} models.ErrorAPIResponse "Invalid input: Validation failed"
+// @Failure 404 {object} models.ErrorAPIResponse "Songs not found"
+// @Failure 409 {object} models.ErrorAPIResponse "Playlist already exists"
+// @Failure 500 {object} models.ErrorAPIResponse "Internal server error"
 // @Router /v1/api/playlists/create [post]
 func (controller *CreateUserPlaylistController) HandleCreateUserPlaylist(ctx *gin.Context) {
 	var bffCreateUserPlaylist models.BFFCreateUserPlaylistRequest
