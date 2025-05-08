@@ -13,11 +13,9 @@ import (
 type adSongsFromPlaylistRepository struct{}
 
 type ADSongsFromPlaylistRepository interface {
-	CheckPlaylistExists(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) (bool, error)
-	CheckSongsExistsInPlaylist(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) (bool, error)
 	AddSongsToPlaylist(ctx context.Context, db *gorm.DB, playlistSongs []genericModels.PlaylistSong) error
 	DeleteSongsFromPlaylist(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) error
-	GetPlaylistWithSongs(ctx context.Context, db *gorm.DB, playlistID int) (*genericModels.Playlist, error)
+	GetPlaylistWithSongs(ctx context.Context, db *gorm.DB, playlistID uint16) (*genericModels.Playlists, error)
 }
 
 func NewADSongsFromPlaylistRepository() *adSongsFromPlaylistRepository {
@@ -35,39 +33,17 @@ func GetADSongsFromPlaylistRepository(useDBmocks bool) ADSongsFromPlaylistReposi
 	return NewADSongsFromPlaylistRepository()
 }
 
-func (repository *adSongsFromPlaylistRepository) CheckPlaylistExists(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) (bool, error) {
-	var count int64
-	err := db.WithContext(ctx).Model(&genericModels.Playlist{}).Where(conditions).Count(&count).Error
-	if err != nil {
-		return false, errors.New(constants.PlaylistExistenceCheckError)
-	}
-	return count > 0, nil
-}
-
-func (repository *adSongsFromPlaylistRepository) CheckSongsExistsInPlaylist(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) (bool, error) {
-	var count int64
-	err := db.WithContext(ctx).Model(&genericModels.PlaylistSong{}).Where(conditions).Count(&count).Error
-	if err != nil {
-		return false, errors.New(constants.SongExistenceCheckingError)
-	}
-	return count > 0, nil
-}
-
 func (repository *adSongsFromPlaylistRepository) AddSongsToPlaylist(ctx context.Context, db *gorm.DB, playlistSongs []genericModels.PlaylistSong) error {
 	if len(playlistSongs) == 0 {
 		return errors.New(constants.NoSongsProvidedError)
 	}
-	err := db.WithContext(ctx).Create(&playlistSongs).Error
-	if err != nil {
-		return errors.New(constants.SongAddingToPlaylistError)
-	}
-	return nil
+	return db.WithContext(ctx).Create(&playlistSongs).Error
 }
 
 func (repository *adSongsFromPlaylistRepository) DeleteSongsFromPlaylist(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) error {
-	result := db.WithContext(ctx).Model(&genericModels.PlaylistSong{}).Where(conditions).Delete(&genericModels.PlaylistSong{})
+	result := db.WithContext(ctx).Where(conditions).Delete(&genericModels.PlaylistSong{})
 	if result.Error != nil {
-		return errors.New(constants.SongDeletionfromPlaylistError)
+		return result.Error
 	}
 	if result.RowsAffected == 0 {
 		return errors.New(constants.NoSongsDeletedFromPlaylist)
@@ -75,8 +51,8 @@ func (repository *adSongsFromPlaylistRepository) DeleteSongsFromPlaylist(ctx con
 	return nil
 }
 
-func (repository *adSongsFromPlaylistRepository) GetPlaylistWithSongs(ctx context.Context, db *gorm.DB, playlistID int) (*genericModels.Playlist, error) {
-	var playlist genericModels.Playlist
+func (repository *adSongsFromPlaylistRepository) GetPlaylistWithSongs(ctx context.Context, db *gorm.DB, playlistID uint16) (*genericModels.Playlists, error) {
+	var playlist genericModels.Playlists
 	err := db.WithContext(ctx).
 		Preload(constants.Songs).
 		Where(constants.WehereIdClause, playlistID).

@@ -66,7 +66,7 @@ func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *
 				ErrorMessage: constants.PlaylistNotFoundError,
 			})
 		case strings.Contains(err.Error(), constants.NoValidSongsToAddError):
-			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{
+			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
 				ErrorMessage: err.Error(),
 			})
 		case strings.Contains(err.Error(), constants.NoValidSongsToBeDeletedError):

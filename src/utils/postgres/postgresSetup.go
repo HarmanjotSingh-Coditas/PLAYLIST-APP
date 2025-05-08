@@ -3,6 +3,8 @@ package postgres
 import (
 	"fmt"
 	genericConstants "playlist-app/src/constants"
+	genericModels "playlist-app/src/models"
+
 	"sync"
 
 	"github.com/spf13/viper"
@@ -36,5 +38,6 @@ func GetPostgresClient() *gorm.DB {
 	if db == nil {
 		panic(genericConstants.DatabaseNilError)
 	}
+	db.AutoMigrate(&genericModels.Userss{}, &genericModels.Songs{}, &genericModels.Playlists{}, &genericModels.PlaylistSong{})
 	return db
 }
