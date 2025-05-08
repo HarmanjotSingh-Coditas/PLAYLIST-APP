@@ -6,7 +6,9 @@ import (
 	"admin-app/Playlist/models"
 	"encoding/json"
 	"net/http"
+	genericConstants "playlist-app/src/constants"
 	genericModels "playlist-app/src/models"
+
 	"playlist-app/src/utils/validations"
 	"strings"
 
@@ -58,35 +60,27 @@ func (controller *CreateUserPlaylistController) HandleCreateUserPlaylist(ctx *gi
 		return
 	}
 
-	created, err := controller.service.CreateUserPlaylistService(ctx, bffCreateUserPlaylist)
+	_, err := controller.service.CreateUserPlaylistService(ctx, bffCreateUserPlaylist)
 	if err != nil {
-		if strings.Contains(err.Error(), constants.SongIdsDoesNotExistsError) {
-			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
-				ErrorMessage: constants.SongIdsDoesNotExistsError,
-			})
-		} else if strings.Contains(err.Error(), constants.PlaylistAlreadyExistsError) {
+		if strings.Contains(err.Error(), genericConstants.DuplicateKeyError) {
 			ctx.JSON(http.StatusConflict, genericModels.ErrorAPIResponse{
 				ErrorMessage: constants.PlaylistAlreadyExistsError,
 			})
-		} else if strings.Contains(err.Error(), constants.PlaylistCreationFailedError) {
-			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-				ErrorMessage: constants.FailedToCreatePlaylist,
-			})
-		} else {
-			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-				ErrorMessage: constants.UnexpectedError,
-			})
+			return
 		}
+		if strings.Contains(err.Error(), genericConstants.ForeignKeyError) {
+			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
+				ErrorMessage: constants.SongIdsDoesNotExistsError,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
+			ErrorMessage: constants.UnexpectedError,
+		})
 		return
 	}
 
-	if created {
-		ctx.JSON(http.StatusOK, models.BFFCreateUserPlaylistResponse{
-			Message: constants.PlaylistCreationSuccess,
-		})
-	} else {
-		ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-			ErrorMessage: constants.FailedToCreatePlaylist,
-		})
-	}
+	ctx.JSON(http.StatusOK, models.BFFCreateUserPlaylistResponse{
+		Message: constants.PlaylistCreationSuccess,
+	})
 }

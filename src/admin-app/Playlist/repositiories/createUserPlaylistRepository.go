@@ -1,10 +1,7 @@
 package repositiories
 
 import (
-	"admin-app/Playlist/commons/constants"
 	"context"
-	"errors"
-	"fmt"
 	genericModels "playlist-app/src/models"
 
 	"gorm.io/gorm"
@@ -13,9 +10,7 @@ import (
 type createUserPlaylistRepository struct{}
 
 type CreateUserPlaylistRepository interface {
-	CheckSongIdExists(ctx context.Context, db *gorm.DB, columns []string, conditions map[string]interface{}) (bool, error)
-	CheckPlaylistExists(ctx context.Context, db *gorm.DB, columns []string, conditions map[string]interface{}) (bool, error)
-	CreatePlaylist(ctx context.Context, db *gorm.DB, playlist genericModels.Playlist) (int, error)
+	CreatePlaylist(ctx context.Context, db *gorm.DB, playlist genericModels.Playlists) (uint16, error)
 	AddSongsToPlaylist(ctx context.Context, db *gorm.DB, playlistSongs []genericModels.PlaylistSong) error
 }
 
@@ -34,34 +29,16 @@ func GetCreateUserPlaylistRepository(useDBMocks bool) CreateUserPlaylistReposito
 	return NewCreateUserPlaylistRepository()
 }
 
-func (repository *createUserPlaylistRepository) CheckSongIdExists(ctx context.Context, db *gorm.DB, columns []string, conditions map[string]interface{}) (bool, error) {
-	var count int64
-	err := db.WithContext(ctx).Model(&genericModels.Songs{}).Where(conditions).Count(&count).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, errors.New(constants.SongIdDoesNotExistsError)
-		}
-		return false, fmt.Errorf(constants.SongIdExsistenceCheckingError, err)
-	}
-	return count > 0, nil
-}
-
-func (repository *createUserPlaylistRepository) CheckPlaylistExists(ctx context.Context, db *gorm.DB, columns []string, conditions map[string]interface{}) (bool, error) {
-	var count int64
-	err := db.WithContext(ctx).Model(&genericModels.Playlist{}).Where(conditions).Count(&count).Error
-	if err != nil {
-		return false, fmt.Errorf(constants.PlaylisyExistenceCheckingError, err)
-	}
-	return count > 0, nil
-}
-
-func (repository *createUserPlaylistRepository) CreatePlaylist(ctx context.Context, db *gorm.DB, playlist genericModels.Playlist) (int, error) {
-	if playlist.UserID == 0 {
-		return 0, errors.New(constants.UserIdRequired)
-	}
+func (repository *createUserPlaylistRepository) CreatePlaylist(ctx context.Context, db *gorm.DB, playlist genericModels.Playlists) (uint16, error) {
 	err := db.WithContext(ctx).Create(&playlist).Error
 	if err != nil {
-		return 0, fmt.Errorf(constants.PlaylistCreationError, err)
+		return 0, err
+	}
+	if err == gorm.ErrDuplicatedKey {
+		return 0, gorm.ErrDuplicatedKey
+	}
+	if err == gorm.ErrForeignKeyViolated {
+		return 0, gorm.ErrForeignKeyViolated
 	}
 	return playlist.ID, nil
 }
@@ -71,8 +48,9 @@ func (repository *createUserPlaylistRepository) AddSongsToPlaylist(ctx context.C
 		return nil
 	}
 	err := db.WithContext(ctx).Create(&playlistSongs).Error
+
 	if err != nil {
-		return fmt.Errorf(constants.AddingSongsToPlaylistError, err)
+		return err
 	}
 	return nil
 }

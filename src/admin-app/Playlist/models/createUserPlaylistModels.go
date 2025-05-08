@@ -5,10 +5,10 @@ type GenericAPIResponse struct {
 }
 
 type BFFCreateUserPlaylistRequest struct {
-	UserID      int    `json:"userId" validate:"required"`
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
-	Song_ids    []int  `json:"songIds" validate:"required,dive,gt=0"`
+	UserID      uint16   `json:"userId" validate:"required"`
+	Name        string   `json:"name" validate:"required"`
+	Description string   `json:"description"`
+	Song_ids    []uint16 `json:"songIds" validate:"required"`
 }
 type BFFCreateUserPlaylistResponse struct {
 	Message string `json:"message"`

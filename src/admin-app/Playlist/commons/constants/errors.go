@@ -6,18 +6,9 @@ const (
 	DatabasePingingError    = "error pinging database %w"
 )
 
-// Create Playlist Repo
-const (
-	SongIdDoesNotExistsError       = "song ID does not exist"
-	SongIdExsistenceCheckingError  = "failed to check song ID: %w"
-	PlaylisyExistenceCheckingError = "failed to check playlist existence: %w"
-	PlaylistCreationError          = "failed to create playlist: %w"
-	AddingSongsToPlaylistError     = "failed to add songs to playlist: %w"
-)
-
 // Create Playlist Service
 const (
-	SongIdsDoesNotExistsError  = "one or more song IDs do not exist"
+	SongIdsDoesNotExistsError  = "empty playlist created as one or more song IDs do not exist"
 	PlaylistAlreadyExistsError = "playlist already exists"
 )
 

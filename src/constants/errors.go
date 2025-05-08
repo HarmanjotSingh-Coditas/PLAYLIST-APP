@@ -18,3 +18,8 @@ const (
 const (
 	UnableToConnectServerError = "unable to connect to server"
 )
+
+const (
+	DuplicateKeyError = "duplicate key"
+	ForeignKeyError   = "foreign key"
+)
