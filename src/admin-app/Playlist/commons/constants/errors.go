@@ -34,12 +34,19 @@ const (
 // Ad playlist Service
 
 const (
-	PlaylistDoesNotExistsError    = "playlist does not exist"
-	SongIdsAlreadyInPlaylistError = "songs with IDs [%v] already exist in playlist"
-	NoValidSongsToDeleteError     = "no valid songs to delete. Non-existent songs: %v"
-	InvalidAction                 = "invalid Action"
-	PlaylistNotFoundError         = "playlist not found"
-	NoValidSongsToAddError        = "no valid songs to add"
-	NoValidSongsToBeDeletedError  = "no valid songs to delete"
-	InvalidActionsError           = "Invalid action. Must be either 'ADD' or 'DELETE'"
+	PlaylistDoesNotExistsError       = "playlist does not exist"
+	SongIdsAlreadyInPlaylistError    = "songs with IDs [%v] already exist in playlist"
+	NoValidSongsToDeleteError        = "no valid songs to delete. Non-existent songs: %v"
+	InvalidAction                    = "invalid action"
+	PlaylistNotFoundError            = "playlist not found"
+	NoValidSongsToAddError           = "no valid songs to add"
+	NoValidSongsToBeDeletedError     = "no valid songs to delete"
+	InvalidActionsError              = "Invalid action. Must be either 'ADD' or 'DELETE'"
+	EmptySongIdsError                = "empty_song_ids"
+	SongOrPlaylistNotFoundError      = "Nothing to delete as song is not in playlist or invalid song/playlist ID"
+	NoSongIDsProvidedError           = "no song IDs provided"
+	DuplicateKeyError                = "duplicate key value "
+	SongAlreadyExistsInPlaylistError = "songs already exist in playlist"
+	ForeignKeyError                  = "foreign key constraint"
+	InvalidPlaylistOrSongId          = "Invalid playlist or song id"
 )

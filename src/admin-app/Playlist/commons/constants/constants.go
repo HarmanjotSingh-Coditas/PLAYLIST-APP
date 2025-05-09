@@ -24,4 +24,6 @@ const (
 	WehereIdClause = "id = ?"
 	PlaylistId     = "playlist_id"
 	SongsId        = "song_id"
+	Add            = "ADD"
+	Delete         = "DELETE"
 )

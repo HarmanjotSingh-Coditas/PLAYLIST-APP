@@ -46,11 +46,12 @@ type Playlists struct {
 	Description string    `gorm:"column:description"`
 	CreatedAt   time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP"`
+	Songs       []Songs   `gorm:"many2many:playlist_songs;foreignKey:ID;joinForeignKey:playlist_id;References:ID;joinReferences:song_id"`
 }
 
 type PlaylistSong struct {
-	PlaylistID uint16    `gorm:"column:playlist_id;not null;"`
-	SongID     uint16    `gorm:"column:song_id;not null;"`
+	PlaylistID uint16    `gorm:"column:playlist_id;not null;uniqueIndex:idx_playlist_song"`
+	SongID     uint16    `gorm:"column:song_id;not null;uniqueIndex:idx_playlist_song"`
 	AddedAt    time.Time `gorm:"column:added_at;default:CURRENT_TIMESTAMP"`
 	Playlist   Playlists `gorm:"foreignKey:PlaylistID;refrences:ID;constraint:OnUpdate:CASCADE"`
 	Song       Songs     `gorm:"foreignKey:SongID;refrences:ID;constraint:OnUpdate:CASCADE"`

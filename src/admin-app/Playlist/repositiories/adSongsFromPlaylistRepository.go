@@ -3,7 +3,6 @@ package repositiories
 import (
 	"admin-app/Playlist/commons/constants"
 	"context"
-	"errors"
 
 	genericModels "playlist-app/src/models"
 
@@ -34,10 +33,8 @@ func GetADSongsFromPlaylistRepository(useDBmocks bool) ADSongsFromPlaylistReposi
 }
 
 func (repository *adSongsFromPlaylistRepository) AddSongsToPlaylist(ctx context.Context, db *gorm.DB, playlistSongs []genericModels.PlaylistSong) error {
-	if len(playlistSongs) == 0 {
-		return errors.New(constants.NoSongsProvidedError)
-	}
-	return db.WithContext(ctx).Create(&playlistSongs).Error
+	err := db.WithContext(ctx).Create(&playlistSongs).Error
+	return err
 }
 
 func (repository *adSongsFromPlaylistRepository) DeleteSongsFromPlaylist(ctx context.Context, db *gorm.DB, conditions map[string]interface{}) error {
@@ -46,7 +43,7 @@ func (repository *adSongsFromPlaylistRepository) DeleteSongsFromPlaylist(ctx con
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return errors.New(constants.NoSongsDeletedFromPlaylist)
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }

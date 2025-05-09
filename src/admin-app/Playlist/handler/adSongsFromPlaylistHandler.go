@@ -5,6 +5,7 @@ import (
 	"admin-app/Playlist/commons/constants"
 	"admin-app/Playlist/models"
 	"encoding/json"
+	"errors"
 	"net/http"
 	genericModels "playlist-app/src/models"
 	"playlist-app/src/utils/validations"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
 )
 
 type AdSongsFromPlaylistController struct {
@@ -24,19 +26,6 @@ func NewADSongsFromPlaylistController(service business.AdSongsFromPlaylistServic
 	}
 }
 
-// HandleAdSongsFromPlaylist adds or deletes songs from playlist
-// @Summary Modify playlist songs
-// @Description Add new songs to or delete existing songs from a playlist
-// @Tags Playlists
-// @Accept json
-// @Produce json
-// @Param request body models.BFFAdSongsFromPlaylistRequest true "Add/Delete songs request"
-// @Success 200 {object} models.BFFAdSongsFromPlaylistResponse "Operation successful"
-// @Failure 400 {object} models.ErrorAPIResponse "Invalid input or action"
-// @Failure 404 {object} models.ErrorAPIResponse "Playlist or songs not found"
-// @Failure 409 {object} models.ErrorAPIResponse "Songs already exist in playlist"
-// @Failure 500 {object} models.ErrorAPIResponse "Internal server error"
-// @Router /v1/api/playlists/ad [put]s
 func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *gin.Context) {
 	var bffAdSongsRequest models.BFFAdSongsFromPlaylistRequest
 
@@ -60,45 +49,30 @@ func (controller *AdSongsFromPlaylistController) HandleAdSongsFromPlaylist(ctx *
 
 	playlist, err := controller.service.AdSongsPlaylistService(ctx, bffAdSongsRequest)
 	if err != nil {
-		switch {
-		case strings.Contains(err.Error(), constants.PlaylistDoesNotExistsError):
-			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
-				ErrorMessage: constants.PlaylistNotFoundError,
-			})
-		case strings.Contains(err.Error(), constants.NoValidSongsToAddError):
-			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{
-				ErrorMessage: err.Error(),
-			})
-		case strings.Contains(err.Error(), constants.NoValidSongsToBeDeletedError):
-			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{
-				ErrorMessage: err.Error(),
-			})
-		case strings.Contains(err.Error(), constants.InvalidAction):
-			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{
-				ErrorMessage: constants.InvalidActionsError,
-			})
-		case strings.Contains(err.Error(), constants.SongsWithIds):
-			ctx.JSON(http.StatusConflict, genericModels.ErrorAPIResponse{
-				ErrorMessage: err.Error(),
-			})
-		default:
-			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{
-				ErrorMessage: constants.UnexpectedError,
-			})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, genericModels.ErrorAPIResponse{ErrorMessage: constants.SongOrPlaylistNotFoundError})
+			return
+		} else if strings.Contains(strings.ToLower(err.Error()), constants.EmptySongIdsError) {
+			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{ErrorMessage: constants.NoSongIDsProvidedError})
+		} else if strings.Contains(strings.ToLower(err.Error()), constants.InvalidAction) {
+			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{ErrorMessage: constants.InvalidActionsError})
+		} else if strings.Contains(strings.ToLower(err.Error()), constants.DuplicateKeyError) {
+			ctx.JSON(http.StatusConflict, genericModels.ErrorAPIResponse{ErrorMessage: constants.SongAlreadyExistsInPlaylistError})
+		} else if strings.Contains(strings.ToLower(err.Error()), constants.ForeignKeyError) {
+			ctx.JSON(http.StatusBadRequest, genericModels.ErrorAPIResponse{ErrorMessage: constants.InvalidPlaylistOrSongId})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, genericModels.ErrorAPIResponse{ErrorMessage: constants.UnexpectedError})
 		}
 		return
 	}
 
-	response := models.BFFAdSongsFromPlaylistResponse{
+	msg := constants.SongsAddedToPlaylistSuccess
+	if bffAdSongsRequest.Action == constants.Delete {
+		msg = constants.SongsDeletedFromPlaylistSuccess
+	}
+
+	ctx.JSON(http.StatusOK, models.BFFAdSongsFromPlaylistResponse{
+		Message:  msg,
 		Playlist: *playlist,
-	}
-
-	switch bffAdSongsRequest.Action {
-	case "ADD":
-		response.Message = constants.SongsAddedToPlaylistSuccess
-	case "DELETE":
-		response.Message = constants.SongsDeletedFromPlaylistSuccess
-	}
-
-	ctx.JSON(http.StatusOK, response)
+	})
 }
